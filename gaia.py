@@ -4,8 +4,8 @@ This wraps the GNU libc implementation of getaddrinfo_a, with a simple
 interface. The module exports a single function, get_records, which looks up
 multiple DNS names in parallel.
 
-Again, this will only work on systems whose libc implementation is libc, and it
-will probably only work on Linux systems (since the sonames are hardcoded).
+Again, this will only work on systems whose libc implementation is glibc, and
+it will probably only work on Linux systems (since the sonames are hardcoded).
 
 This code is based on the example code in the getaddrinfo_a man page, and is
 released to the public domain.
