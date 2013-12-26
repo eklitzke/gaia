@@ -13,8 +13,10 @@ released to the public domain.
 
 import ctypes
 
+
 libc = ctypes.cdll.LoadLibrary('libc.so.6')
 libanl = ctypes.cdll.LoadLibrary('libanl.so.1')
+
 
 # these constants cribbed from libanl
 GAI_WAIT = 0
@@ -33,6 +35,7 @@ class addrinfo(ctypes.Structure):
                 ('ai_canonname', ctypes.c_char_p),
                 ('ai_next', ctypes.c_void_p)]
 
+
 c_addrinfo_p = ctypes.POINTER(addrinfo)
 
 
@@ -42,7 +45,9 @@ class gaicb(ctypes.Structure):
                 ('ar_request', c_addrinfo_p),
                 ('ar_result', c_addrinfo_p)]
 
+
 c_gaicb_p = ctypes.POINTER(gaicb)
+
 
 getaddrinfo_a = libanl.getaddrinfo_a
 getaddrinfo_a.argtypes = [ctypes.c_int,   # mode
@@ -51,6 +56,7 @@ getaddrinfo_a.argtypes = [ctypes.c_int,   # mode
                           ctypes.c_void_p # sevp
                           ]
 getaddrinfo_a.restype = ctypes.c_int
+
 
 getnameinfo = libc.getnameinfo
 getnameinfo.argtypes = [ctypes.c_void_p, # sa
@@ -63,16 +69,17 @@ getnameinfo.argtypes = [ctypes.c_void_p, # sa
                         ]
 getnameinfo.restype = ctypes.c_int
 
+
 # statically allocate the host array
 host = ctypes.cast((ctypes.c_char * NI_MAXHOST)(), ctypes.c_char_p)
 
+
 def get_records(names):
-    """Get multiple A records. This will fetch the records in parallel, and
-    block until they're all fetched.
+    """Get multiple A records, in parallel.
 
     Args:
       names - a list of names to lookup
-    
+
     Returns:
       dictionary mapping lookup names to IP addresses
     """
@@ -94,13 +101,16 @@ def get_records(names):
     for req in reqs:
         name = req.contents.ar_name
         res = req.contents.ar_result.contents
-        ret = getnameinfo(res.ai_addr, res.ai_addrlen, host, NI_MAXHOST, None, 0, NI_NUMERICHOST)
+        ret = getnameinfo(res.ai_addr, res.ai_addrlen,
+                          host, NI_MAXHOST, None, 0, NI_NUMERICHOST)
         assert ret == 0
         result[name] = host.value
 
     return result
 
+
 __all__ = ['get_records']
+
 
 if __name__ == '__main__':
     print get_records(['eklitzke.org', 'google.com'])
